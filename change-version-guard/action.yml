@@ -21,8 +21,6 @@ runs:
       id: changed-source
       if: ${{ inputs.source_path }}
       uses: tj-actions/changed-files@v29
-      with:
-        path: ${{ inputs.source_path }}
 
     - name: Get new version
       id: get-new-version
@@ -49,7 +47,7 @@ runs:
       if: ${{ contains(steps.changed-source.outputs.all_changed_files, inputs.source_path) &&
         steps.get-new-version.outputs.changed != 'true' && inputs.fail_task == 'true' }}
       run: |
-        echo "Please, update version in $inputs.package_json_path"
+        echo "Please, update version in ${{ inputs.package_json_path }}"
         exit 1
 
 outputs:
