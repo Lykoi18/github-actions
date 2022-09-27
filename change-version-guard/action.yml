@@ -5,11 +5,11 @@ inputs:
   fail_task:
     description: fail task if version not upgraded
     default: 'true'
-    required: true
+    required: false
   package_json_path:
     description: path to package.json file
     default: 'package.json'
-    required: true
+    required: false
   source_path:
     description: path to source folder
     required: false
