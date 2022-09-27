@@ -21,8 +21,6 @@ runs:
       id: changed-source
       if: ${{ inputs.source_path }}
       uses: tj-actions/changed-files@v29
-      with:
-        path: ${{ inputs.source_path }}
 
     - name: Get new version
       id: get-new-version
