@@ -30,7 +30,8 @@ runs:
       env:
         PACKAGE_JSON_PATH: ${{ inputs.package_json_path }}
       run: |
-        versionDiff=$( git diff HEAD^ HEAD -U0 $PACKAGE_JSON_PATH )
+        echo $PACKAGE_JSON_PATH
+        versionDiff=$( git diff HEAD^ HEAD -U0 package.json )
         
         if ! [[ $versionDiff ]] || ! [[ $versionDiff =~ (\+ *\"version\":) ]]
         then
