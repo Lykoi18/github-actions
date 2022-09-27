@@ -1,9 +1,9 @@
 name: change-version-guard
-description: Guard - Up version if sources files changed
+description: Guard - Update version if source files have changed
 
 inputs:
   fail_task:
-    description: fail task if version not upgraded
+    description: fail task if version was not updated
     default: 'true'
     required: false
   package_json_path:
@@ -49,12 +49,12 @@ runs:
       if: ${{ contains(steps.changed-source.outputs.all_changed_files, inputs.source_path) &&
         steps.get-new-version.outputs.changed != 'true' && inputs.fail_task == 'true' }}
       run: |
-        echo "Please update version in $inputs.package_json_path"
+        echo "Please, update version in $inputs.package_json_path"
         exit 1
 
 outputs:
   changed:
-    description: true if version is bumped
+    description: true if version was bumped
     value: ${{ steps.get-new-version.outputs.changed }}
   version:
     description: new version
