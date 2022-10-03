@@ -15,10 +15,9 @@ runs:
 
     - name: Check if version has been updated
       id: check
-      uses: EndBug/version-check@v2
+      uses: Lykoi18/github-actions/verify-version-changed@test
       with:
-        diff-search: true
-        file-name: ${{ inputs.generator_path }}/package.json
+        path: ${{ inputs.generator_path }}
 
     - name: Check changes
       shell: bash
