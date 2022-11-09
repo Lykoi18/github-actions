@@ -24,7 +24,7 @@ runs:
       env:
         source-path: ${{ inputs.path }}/src/
       if: ${{ contains(steps.changed-source.outputs.all_changed_files, env.source-path) &&
-        steps.check.outputs.changed == 'false' }}
+        !steps.check.outputs.changed }}
       run: |
         echo "Please, update version in ${{ inputs.path }}/package.json"
         exit 1
