@@ -55,10 +55,10 @@ async function run(): Promise<void> {
                 throw new Error(`The new version "${newVersion}" is invalid.`)
             }
 
-            core.setOutput('changed', true)
+            core.setOutput('changed', 'true')
             core.setOutput('version', newVersion)
         } else {
-            core.setOutput('changed', false)
+            core.setOutput('changed', 'false')
             core.setOutput('version', 'undefined')
         }
     } catch (error) {
