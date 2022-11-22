@@ -12581,11 +12581,23 @@ const ms_teams_webhook_1 = __nccwpck_require__(2945);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const hook = core.getInput('hook_url', { required: true });
+            const hook = core.getInput('hook_url', { required: false });
             const alertsRaw = core.getInput('alerts', { required: false });
             const alerts = alertsRaw && JSON.parse(alertsRaw);
-            const webhook = new ms_teams_webhook_1.IncomingWebhook(hook);
+            function checkHook() {
+                if (!hook) {
+                    const msg = 'Input required and not supplied: hook_url.';
+                    core.setFailed(msg);
+                    console.error(msg);
+                    return false;
+                }
+                return true;
+            }
             if (alerts) {
+                if (!checkHook()) {
+                    return;
+                }
+                const webhook = new ms_teams_webhook_1.IncomingWebhook(hook);
                 yield notifyCodeQlAlerts(alerts, webhook);
             }
             else {
@@ -12603,12 +12615,16 @@ function run() {
                 if (specificBranch && specificBranch !== ref) {
                     return;
                 }
+                if (!checkHook()) {
+                    return;
+                }
                 const octokit = (0, github_1.getOctokit)(ghToken);
                 const runInfo = yield octokit.request('GET /repos/{owner}/{repo}/actions/runs/{runId}', {
                     owner: repo.owner,
                     repo: repo.repo,
                     runId
                 });
+                const webhook = new ms_teams_webhook_1.IncomingWebhook(hook);
                 yield notifyFailedWorkflow(runInfo.data, webhook);
             }
         }
