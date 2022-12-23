@@ -12598,7 +12598,13 @@ function run() {
                     return;
                 }
                 const webhook = new ms_teams_webhook_1.IncomingWebhook(hook);
-                yield notifyCodeQlAlerts(alerts, webhook);
+                const alertsType = core.getInput('alert_type');
+                if (alertsType === "Dependabot" /* AlertType.Dependabot */) {
+                    yield notifyDependabotAlerts(alerts, webhook);
+                }
+                else {
+                    yield notifyCodeQlAlerts(alerts, webhook);
+                }
             }
             else {
                 const ghToken = core.getInput('bearer_token', { required: false });
@@ -12681,6 +12687,61 @@ function notifyCodeQlAlerts(alerts, webhook) {
                                         'value': `[${alert.most_recent_instance.commit_sha}](https://github.com/iBat/codeql-test/commit/${alert.most_recent_instance.commit_sha})`
                                     },
                                 ]
+                            }
+                        ]
+                    }));
+                }
+            }
+        }
+        fs_1.default.writeFileSync(alertsCacheFile, JSON.stringify(notify_cache));
+    });
+}
+function notifyDependabotAlerts(alerts, webhook) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const alertsCacheFile = core.getInput('alerts_cache_file', { required: false });
+        let notify_cache = {};
+        if (fs_1.default.existsSync(alertsCacheFile)) {
+            notify_cache = JSON.parse(fs_1.default.readFileSync(alertsCacheFile).toString());
+        }
+        for (let alert of alerts) {
+            if (alert.state === 'open') {
+                if (!notify_cache[alert.number]) {
+                    notify_cache[alert.number] = true;
+                    yield webhook.send(JSON.stringify({
+                        $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
+                        type: 'AdaptiveCard',
+                        version: '1.2',
+                        body: [
+                            {
+                                type: 'TextBlock',
+                                text: 'New security issue found',
+                                weight: 'bolder',
+                                size: 'Large'
+                            },
+                            {
+                                type: 'FactSet',
+                                separator: true,
+                                facts: [
+                                    {
+                                        title: 'Summary:',
+                                        value: alert.security_advisory.summary
+                                    },
+                                    {
+                                        title: 'Severity:',
+                                        value: alert.security_advisory.severity
+                                    },
+                                    {
+                                        title: 'Date submitted:',
+                                        value: alert.created_at
+                                    }
+                                ]
+                            }
+                        ],
+                        actions: [
+                            {
+                                type: 'Action.OpenUrl',
+                                title: 'View in GitHub',
+                                url: alert.html_url
                             }
                         ]
                     }));
