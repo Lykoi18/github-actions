@@ -5,6 +5,7 @@ import { IncomingWebhook } from 'ms-teams-webhook';
 import { DependabotAlertDto } from './dto/dependabot-alert.dto';
 
 type GithubContext = typeof context;
+
 const enum AlertType {
     CodeQL = 'CodeQL',
     Dependabot = 'Dependabot',
@@ -87,7 +88,7 @@ async function notifyCodeQlAlerts(alerts: Array<any>, webhook: IncomingWebhook) 
         if (alert.state === 'open') {
             if (!notify_cache[alert.number]) {
                 notify_cache[alert.number] = true;
-                await webhook.send(JSON.stringify({
+                await webhook.send({
                     '@type': 'MessageCard',
                     '@context': 'https://schema.org/extensions',
                     'summary': 'New security alert found',
@@ -125,13 +126,14 @@ async function notifyCodeQlAlerts(alerts: Array<any>, webhook: IncomingWebhook) 
                             ]
                         }
                     ]
-                }));
+                });
             }
         }
     }
 
     fs.writeFileSync(alertsCacheFile, JSON.stringify(notify_cache));
 }
+
 async function notifyDependabotAlerts(alerts: Array<DependabotAlertDto>, webhook: IncomingWebhook) {
     const alertsCacheFile = core.getInput('alerts_cache_file', { required: false });
     let notify_cache: { [key: string]: Object } = {};
@@ -144,44 +146,55 @@ async function notifyDependabotAlerts(alerts: Array<DependabotAlertDto>, webhook
         if (alert.state === 'open') {
             if (!notify_cache[alert.number]) {
                 notify_cache[alert.number] = true;
-                await webhook.send(JSON.stringify({
-                    $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
-                    type: 'AdaptiveCard',
-                    version: '1.2',
-                    body: [
-                        {
-                            type: 'TextBlock',
-                            text: 'New security issue found',
-                            weight: 'bolder',
-                            size: 'Large'
-                        },
-                        {
-                            type: 'FactSet',
-                            separator: true,
-                            facts: [
-                                {
-                                    title: 'Summary:',
-                                    value: alert.security_advisory.summary
-                                },
-                                {
-                                    title: 'Severity:',
-                                    value: alert.security_advisory.severity
-                                },
-                                {
-                                    title: 'Date submitted:',
-                                    value: alert.created_at
+                await webhook.send(
+                    {
+                        type: 'message',
+                        attachments: [
+                            {
+                                contentType: 'application/vnd.microsoft.card.adaptive',
+                                contentUrl: alert.html_url,
+                                content: {
+                                    $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
+                                    type: 'AdaptiveCard',
+                                    version: '1.2',
+                                    body: [
+                                        {
+                                            type: 'TextBlock',
+                                            text: 'New security issue found',
+                                            weight: 'bolder',
+                                            size: 'Large'
+                                        },
+                                        {
+                                            type: 'FactSet',
+                                            separator: true,
+                                            facts: [
+                                                {
+                                                    title: 'Summary:',
+                                                    value: alert.security_advisory.summary
+                                                },
+                                                {
+                                                    title: 'Severity:',
+                                                    value: alert.security_advisory.severity
+                                                },
+                                                {
+                                                    title: 'Date submitted:',
+                                                    value: alert.created_at
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    actions: [
+                                        {
+                                            type: 'Action.OpenUrl',
+                                            title: 'View in GitHub',
+                                            url: alert.html_url
+                                        }
+                                    ]
                                 }
-                            ]
-                        }
-                    ],
-                    actions: [
-                        {
-                            type: 'Action.OpenUrl',
-                            title: 'View in GitHub',
-                            url: alert.html_url
-                        }
-                    ]
-                }));
+                            }
+                        ]
+                    }
+                );
             }
         }
     }
@@ -192,7 +205,7 @@ async function notifyDependabotAlerts(alerts: Array<DependabotAlertDto>, webhook
 async function notifyFailedWorkflow(runInfo: any, webhook: IncomingWebhook) {
     const { repo, workflow }: GithubContext = context;
 
-    await webhook.send(JSON.stringify({
+    await webhook.send({
         '@context': 'https://schema.org/extensions',
         '@type': 'MessageCard',
         'text': 'Run failed',
@@ -230,7 +243,7 @@ async function notifyFailedWorkflow(runInfo: any, webhook: IncomingWebhook) {
                 ]
             }
         ]
-    }));
+    });
 }
 
 run()
