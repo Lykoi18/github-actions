@@ -13986,7 +13986,7 @@ function run() {
                 case 'pull_request':
                     const baseBranch = (_b = (_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base) === null || _b === void 0 ? void 0 : _b.ref;
                     core.info(`Base branch: ${baseBranch}`);
-                    base = yield execCommand(`git log -n 1 --pretty=format:"%H" ${baseBranch}`);
+                    base = yield execCommand(`git log -n 1 --pretty=format:"%H" origin/${baseBranch}`);
                     head = (_d = (_c = github_1.context.payload.pull_request) === null || _c === void 0 ? void 0 : _c.head) === null || _d === void 0 ? void 0 : _d.sha;
                     break;
                 case 'push':

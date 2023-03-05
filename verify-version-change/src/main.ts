@@ -29,7 +29,7 @@ async function run(): Promise<void> {
                 const baseBranch = context.payload.pull_request?.base?.ref
                 core.info(`Base branch: ${baseBranch}`)
 
-                base = await execCommand(`git log -n 1 --pretty=format:"%H" ${baseBranch}`)
+                base = await execCommand(`git log -n 1 --pretty=format:"%H" origin/${baseBranch}`)
 
                 head = context.payload.pull_request?.head?.sha
                 break
