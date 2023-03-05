@@ -13972,7 +13972,7 @@ const execCommand = (command) => __awaiter(void 0, void 0, void 0, function* () 
     if (exitCode !== 0) {
         throw new Error(`Command "${command}" has been failed with error: ${stderr}`);
     }
-    return stdout;
+    return stdout.trim();
 });
 function run() {
     var _a, _b, _c, _d;
@@ -13986,8 +13986,7 @@ function run() {
                 case 'pull_request':
                     const baseBranch = (_b = (_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base) === null || _b === void 0 ? void 0 : _b.ref;
                     core.info(`Base branch: ${baseBranch}`);
-                    const branches = yield execCommand(`git branch --all`);
-                    core.info(`Branches: ${branches}`);
+                    core.info(`ref: ${github_1.context.ref}`);
                     yield execCommand(`git fetch origin`);
                     base = yield execCommand(`git rev-parse origin/${baseBranch}`);
                     head = (_d = (_c = github_1.context.payload.pull_request) === null || _c === void 0 ? void 0 : _c.head) === null || _d === void 0 ? void 0 : _d.sha;
