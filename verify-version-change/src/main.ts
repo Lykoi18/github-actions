@@ -28,7 +28,10 @@ async function run(): Promise<void> {
             case 'pull_request':
                 const baseBranch = context.payload.pull_request?.base?.ref
                 core.info(`Base branch: ${baseBranch}`)
+                const branches = await execCommand(`git branch --all`)
+                core.info(`Branches: ${branches}`)
 
+                await execCommand(`git fetch origin`)
                 base = await execCommand(`git rev-parse origin/${baseBranch}`)
 
                 head = context.payload.pull_request?.head?.sha
